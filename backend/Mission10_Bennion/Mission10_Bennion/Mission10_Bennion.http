@@ -1,0 +1,6 @@
+@Mission10_Bennion_HostAddress = http://localhost:5271
+
+GET {{Mission10_Bennion_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
