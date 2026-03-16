@@ -5,9 +5,10 @@ using Mission10_Bennion.Data;
 namespace Mission10_Bennion.Controllers
 {
     [ApiController]
-    [Route("api/[controller]")]
+    [Route("api/[controller]")] // this means the endpoint is at /api/bowlers
     public class BowlersController : ControllerBase
     {
+        // injecting the database context so we can query the bowling database
         private readonly BowlingContext _context;
 
         public BowlersController(BowlingContext context)
@@ -15,15 +16,17 @@ namespace Mission10_Bennion.Controllers
             _context = context;
         }
 
+        // GET /api/bowlers - returns only bowlers on the Marlins or Sharks teams
         [HttpGet]
-        public async Task<IActionResult> GetBowlers()
+        public async Task<IEnumerable<object>> GetBowlers()
         {
-            var bowlers = await _context.Bowlers
-                .Include(b => b.Team)
+            return await _context.Bowlers
+                .Include(b => b.Team) // join the Teams table so we get the team name
                 .Where(b => b.Team != null &&
-                    (b.Team.TeamName == "Marlins" || b.Team.TeamName == "Sharks"))
+                    (b.Team.TeamName == "Marlins" || b.Team.TeamName == "Sharks")) // only these two teams
                 .Select(b => new
                 {
+                    // picking just the fields we actually need to send to the frontend
                     b.BowlerFirstName,
                     b.BowlerMiddleInit,
                     b.BowlerLastName,
@@ -35,8 +38,6 @@ namespace Mission10_Bennion.Controllers
                     b.BowlerPhoneNumber
                 })
                 .ToListAsync();
-
-            return Ok(bowlers);
         }
     }
 }
